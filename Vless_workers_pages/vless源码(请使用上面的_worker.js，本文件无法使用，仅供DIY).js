@@ -4,7 +4,7 @@ import { connect } from "cloudflare:sockets";
 
 // How to generate your own UUID:
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
-let userID = "86c50e3a-5b87-49dd-bd20-03c7f2735e40";
+let userID = "79591aaa-6a5d-467e-9b6c-6415ae9d603a";
 
 const proxyIPs = ["ts.hpc.tw"]; //ts.hpc.tw edgetunnel.anycast.eu.org bestproxy.onecf.eu.org cdn-all.xn--b6gac.eu.org cdn.xn--b6gac.eu.org proxy.xxxxxxxx.tk
 const cn_hostnames = [''];
@@ -1887,10 +1887,25 @@ return `{
 	}`
 }
 
-function getptyConfig(userID, hostName) {
-	const vlessshare = btoa(`vless\u003A//${userID}\u0040${IP8}:${PT8}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V8_${IP8}_${PT8}\nvless\u003A//${userID}\u0040${IP9}:${PT9}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V9_${IP9}_${PT9}\nvless\u003A//${userID}\u0040${IP10}:${PT10}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V10_${IP10}_${PT10}\nvless\u003A//${userID}\u0040${IP11}:${PT11}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V11_${IP11}_${PT11}\nvless\u003A//${userID}\u0040${IP12}:${PT12}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V12_${IP12}_${PT12}\nvless\u003A//${userID}\u0040${IP13}:${PT13}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V13_${IP13}_${PT13}`);	
-		return `${vlessshare}`
-	}
+function getPtyConfig(userID, hostName) {
+    const basePath = '/?ed=2560';
+    const securityParams = 'encryption=none&security=tls&fp=randomized&type=ws';
+
+    const ips = [IP8, IP9, IP10, IP11, IP12, IP13];
+    const ports = [PT8, PT9, PT10, PT11, PT12, PT13];
+
+    const vlessShare = btoa(
+        ips
+            .map((ip, index) => {
+                const port = ports[index];
+                return `vless://${userID}@${ip}:${port}?${securityParams}&sni=${hostName}&host=${hostName}&path=${encodeURIComponent(basePath)}#CF_V${index + 8}_${ip}_${port}`;
+            })
+            .join('\n')
+    );
+
+    return vlessShare;
+}
+
 	
 function getpclConfig(userID, hostName) {
 return `
